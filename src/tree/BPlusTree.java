@@ -20,8 +20,10 @@ public class BPlusTree {
             keys = new int[fanOut - 1];
         }
 
-        abstract void split();
-        abstract void merge();
+        abstract void insert(int key);
+
+        abstract void delete(int key);
+
     }
 
     private class InternalNode extends Node {
@@ -32,7 +34,13 @@ public class BPlusTree {
             childNodes = new Node[fanOut];
         }
 
-        void split() {
+        @Override
+        void insert(int key) {
+
+        }
+
+        @Override
+        void delete(int key) {
 
         }
 
@@ -51,11 +59,15 @@ public class BPlusTree {
             records = new Object[fanOut - 1];
         }
 
-        void split() {
-
+        @Override
+        void insert(int key) {
+            if (parentNode == null) {
+                parentNode = new InternalNode();
+            }
         }
 
-        void merge() {
+        @Override
+        void delete(int key) {
 
         }
     }
@@ -89,7 +101,7 @@ public class BPlusTree {
     }
 
     public void search(int key1, int key2) {
-        
+
     }
 
     public void dumpStatistics() {
