@@ -9,7 +9,6 @@ public class BPlusTree {
     private int numOfIndexEntries;
     private double fillFactor;
 
-
     // Inner class Node
     private abstract class Node {
         int[] keys;
@@ -20,8 +19,6 @@ public class BPlusTree {
             keys = new int[fanOut - 1];
         }
 
-        abstract void insert(int key);
-
         abstract void delete(int key);
 
     }
@@ -29,17 +26,95 @@ public class BPlusTree {
     private class InternalNode extends Node {
         Node[] childNodes;
 
-        InternalNode() {
+        InternalNode(int key, Node leftChild, Node rightChild) {
             super();
             childNodes = new Node[fanOut];
+            keys[0] = key;
+            keyCnt = 1;
+            childNodes[0] = leftChild;
+            childNodes[1] = rightChild;
+            leftChild.parentNode = this;
+            rightChild.parentNode = this;
         }
 
-        @Override
-        void insert(int key) {
+        void insert(int key, Node newChild) {
+            if (keyCnt == fanOut - 1) {
+                split(key, newChild);
+            }
 
+            keys[keyCnt++] = key;
+            childNodes[keyCnt] = newChild;
+            int tmpKey;
+            Node tmpNode;
+            for (int i = keyCnt - 1; i > 0; i--) {
+                if (keys[i] < keys[i - 1]) {
+                    tmpKey = keys[i];
+                    keys[i] = keys[i - 1];
+                    keys[i - 1] = tmpKey;
+
+                    tmpNode = childNodes[i + 1];
+                    childNodes[i + 1] = childNodes[i];
+                    childNodes[i] = tmpNode;
+                } else {
+                    break;
+                }
+            }
         }
 
-        @Override
+        private void split(int key, Node newChild) {
+            // Sort
+            int tmpKey;
+            Node tmpNode;
+            if (keys[keyCnt - 1] > key) { // the new key is smaller than the largest key in the node
+                tmpKey = key;
+                key = keys[keyCnt - 1];
+                keys[keyCnt - 1] = tmpKey;
+
+                tmpNode = newChild;
+                newChild = childNodes[keyCnt];
+                childNodes[keyCnt] = tmpNode;
+            }
+
+            for (int i = keyCnt - 1; i > 0; i--) {
+                if (keys[i] < keys[i - 1]) {
+                    tmpKey = keys[i];
+                    keys[i] = keys[i - 1];
+                    keys[i - 1] = tmpKey;
+
+                    tmpNode = childNodes[i + 1];
+                    childNodes[i + 1] = childNodes[i];
+                    childNodes[i] = tmpNode;
+                } else {
+                    break;
+                }
+            }
+
+            // Create sibling
+            InternalNode sib = new InternalNode(keys[keyCnt / 2 + 1], childNodes[keyCnt / 2 + 1],
+                    childNodes[keyCnt / 2 + 2]);
+            this.keyCnt--; // the key moved to sib
+
+            for (int i = 1; i < fanOut / 2 - 1; i++) {
+                sib.keys[i] = this.keys[(fanOut - 1) / 2 + 1 + i];
+                sib.childNodes[i + 1] = this.childNodes[(fanOut - 1) / 2 + 2 + i];
+                this.keyCnt--;
+                sib.keyCnt++;
+            }
+            // add the largest
+            sib.keys[(fanOut - 2) / 2] = key;
+            sib.childNodes[(fanOut - 2) / 2 + 1] = newChild;
+            sib.keyCnt++;
+
+            // if this is the root
+            if (parentNode == null) {
+                new InternalNode(keys[keyCnt / 2], this, sib);
+            } else {
+                // otherwise, insert key to the parent
+                parentNode.insert(keys[keyCnt / 2], sib);
+            }
+            this.keyCnt--; // the key moved to par
+        }
+
         void delete(int key) {
 
         }
@@ -56,7 +131,6 @@ public class BPlusTree {
             records = new Object[fanOut - 1];
         }
 
-        @Override
         void insert(int key) {
             if (keyCnt < keys.length) {
                 boolean ifInsert = false;
