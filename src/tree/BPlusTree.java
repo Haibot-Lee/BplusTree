@@ -74,6 +74,9 @@ public class BPlusTree {
                         keys[i] = temp2;
                     }
                 }
+                if (!ifInsert) {
+                    keys[keyCnt] = key;
+                }
                 keyCnt++;
             } else {
                 if (rightSibling == null) {
@@ -91,12 +94,19 @@ public class BPlusTree {
                 boolean ifInsert = false;
                 for (int i = 0; i < temp.length; i++) {
                     if (!ifInsert) {
-                        if (key < keys[i]) {
+                        if (i < keys.length) {
+                            if (key < keys[i]) {
+                                temp[i] = key;
+                                ifInsert = true;
+                            } else {
+                                temp[i] = keys[i];
+                            }
+                        } else {
                             temp[i] = key;
                         }
-                        temp[i] = keys[i];
+                    } else {
+                        temp[i] = keys[i - 1];
                     }
-                    temp[i] = keys[i - 1];
                 }
 
                 for (int i = 0; i < keys.length; i++) {
