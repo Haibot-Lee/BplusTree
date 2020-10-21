@@ -13,7 +13,7 @@ public class BPlusTree {
     // Inner class Node
     private abstract class Node {
         int[] keys;
-        int keyCnt;
+        int keyCnt = 0;
         InternalNode parentNode;
 
         Node() {
@@ -44,9 +44,6 @@ public class BPlusTree {
 
         }
 
-        void merge() {
-
-        }
     }
 
     private class LeafNode extends Node {
@@ -61,9 +58,68 @@ public class BPlusTree {
 
         @Override
         void insert(int key) {
-            if (parentNode == null) {
-                parentNode = new InternalNode();
+            if (keyCnt < keys.length) {
+                boolean ifInsert = false;
+                int temp = 0;
+                for (int i = 0; i < keyCnt + 1; i++) {
+                    if (!ifInsert) {
+                        if (key < keys[i]) {
+                            temp = keys[i];
+                            keys[i] = key;
+                            ifInsert = true;
+                        }
+                    } else {
+                        int temp2 = temp;
+                        temp = keys[i];
+                        keys[i] = temp2;
+                    }
+                }
+                keyCnt++;
+            } else {
+                if (rightSibling == null) {
+                    rightSibling = new LeafNode();
+                    rightSibling.leftSibling = this;
+                } else {
+                    LeafNode temp = rightSibling;
+                    rightSibling = new LeafNode();
+                    rightSibling.leftSibling = this;
+                    rightSibling.rightSibling = temp;
+                    rightSibling.rightSibling.leftSibling = rightSibling;
+                }
+
+                int[] temp = new int[keys.length + 1];
+                boolean ifInsert = false;
+                for (int i = 0; i < temp.length; i++) {
+                    if (!ifInsert) {
+                        if (key < keys[i]) {
+                            temp[i] = key;
+                        }
+                        temp[i] = keys[i];
+                    }
+                    temp[i] = keys[i - 1];
+                }
+
+                for (int i = 0; i < keys.length; i++) {
+                    if (i < temp.length / 2) {
+                        keys[i] = temp[i];
+                    } else {
+                        keys[i] = 0;
+                    }
+
+                    if (i <= temp.length / 2) {
+                        rightSibling.keys[i] = temp[i + temp.length / 2];
+                    }
+                }
+
+                if (parentNode == null) {
+                    parentNode = new InternalNode(key, this, rightSibling);
+                    rightSibling.parentNode = parentNode;
+                } else {
+                    parentNode.insert(key, rightSibling);
+                    rightSibling.parentNode = parentNode;
+                }
             }
+
         }
 
         @Override
@@ -71,7 +127,6 @@ public class BPlusTree {
 
         }
     }
-
 
     // Constructors
     public BPlusTree(String filename) {
@@ -107,7 +162,6 @@ public class BPlusTree {
     public void dumpStatistics() {
 
     }
-
 
     // Getters and setters
     public int getNumOfNodes() {
