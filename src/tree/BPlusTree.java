@@ -13,6 +13,7 @@ public class BPlusTree {
     // Inner class Node
     private abstract class Node {
         int[] keys;
+        int keyCnt;
         InternalNode parentNode;
 
         Node() {
