@@ -199,11 +199,11 @@ public class BPlusTree {
                 }
 
                 if (parentNode == null) {
-                    parentNode = new InternalNode(key, this, rightSibling);
+                    parentNode = new InternalNode(temp[temp.length / 2], this, rightSibling);
                     root = parentNode;
                     rightSibling.parentNode = parentNode;
                 } else {
-                    parentNode.insert(key, rightSibling);
+                    parentNode.insert(temp[temp.length / 2], rightSibling);
                     rightSibling.parentNode = parentNode;
                 }
             }
