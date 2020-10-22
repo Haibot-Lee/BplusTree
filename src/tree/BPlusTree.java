@@ -253,7 +253,29 @@ public class BPlusTree {
     }
 
     public void search(int key) {
+        Node n = root;
 
+        while (n != null) {
+            // layer of node
+            if (n instanceof InternalNode) {
+                for (int i = 0; i < n.keyCnt; i++) {
+                    int delta = key - n.keys[i];
+                    if (delta <= 0) {
+                        n = ((InternalNode) n).childNodes[i - 1];
+                        break;
+                    }
+                }
+            }else if (n instanceof LeafNode) {
+                for (int i = 0; i < n.keyCnt; i++) {
+                    int delta = key - n.keys[i];
+                    if (delta == 0){
+                        System.out.println(n.keys[i] + " is here!");
+                        return;
+                    }
+                }
+            }
+        }
+        System.out.println("No Found");
     }
 
     public void search(int key1, int key2) {
