@@ -225,10 +225,23 @@ public class BPlusTree {
 
     }
 
+    // Private methods
+    private void printTree(Node n) {
+        printNode(n);
+        System.out.println();
+        if (n instanceof InternalNode) {
+            for (int i = 0; i < n.keyCnt + 1; i++) {
+                printNode(((InternalNode) n).childNodes[i]);
+                System.out.print(" - ");
+            }
+        }
+    }
 
     // Public methods
     public void insert(int key, Object record) {
-
+        // TEST CODE START
+        ((LeafNode) root).insert(key);
+        // TEST CODE END
     }
 
     public void delete(int key) {
@@ -245,6 +258,16 @@ public class BPlusTree {
 
     public void dumpStatistics() {
 
+    }
+
+    public void printNode(Node n) {
+        for (int i = 0; i < n.keyCnt; i++) {
+            System.out.print("| " + n.keys[i] + " |");
+        }
+    }
+
+    public void printTree() {
+        printTree(root);
     }
 
     // Getters and setters
