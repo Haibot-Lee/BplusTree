@@ -109,15 +109,18 @@ public class BPlusTree {
                     }
                 }
 
+                keyCnt = 0;
                 for (int i = 0; i < keys.length; i++) {
                     if (i < temp.length / 2) {
                         keys[i] = temp[i];
+                        keyCnt++;
                     } else {
                         keys[i] = 0;
                     }
 
                     if (i <= temp.length / 2) {
                         rightSibling.keys[i] = temp[i + temp.length / 2];
+                        rightSibling.keyCnt++;
                     }
                 }
 
