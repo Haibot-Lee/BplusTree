@@ -183,20 +183,24 @@ public class BPlusTree {
                     }
                 }
 
+                keyCnt = 0;
                 for (int i = 0; i < keys.length; i++) {
                     if (i < temp.length / 2) {
                         keys[i] = temp[i];
+                        keyCnt++;
                     } else {
                         keys[i] = 0;
                     }
 
                     if (i <= temp.length / 2) {
                         rightSibling.keys[i] = temp[i + temp.length / 2];
+                        rightSibling.keyCnt++;
                     }
                 }
 
                 if (parentNode == null) {
                     parentNode = new InternalNode(key, this, rightSibling);
+                    root = parentNode;
                     rightSibling.parentNode = parentNode;
                 } else {
                     parentNode.insert(key, rightSibling);
@@ -225,10 +229,23 @@ public class BPlusTree {
 
     }
 
+    // Private methods
+    private void printTree(Node n) {
+        printNode(n);
+        System.out.println();
+        if (n instanceof InternalNode) {
+            for (int i = 0; i < n.keyCnt + 1; i++) {
+                printNode(((InternalNode) n).childNodes[i]);
+                System.out.print(" - ");
+            }
+        }
+    }
 
     // Public methods
     public void insert(int key, Object record) {
-
+        // TEST CODE START
+        ((LeafNode) root).insert(key);
+        // TEST CODE END
     }
 
     public void delete(int key) {
@@ -267,6 +284,16 @@ public class BPlusTree {
 
     public void dumpStatistics() {
 
+    }
+
+    public void printNode(Node n) {
+        for (int i = 0; i < n.keyCnt; i++) {
+            System.out.print("| " + n.keys[i] + " |");
+        }
+    }
+
+    public void printTree() {
+        printTree(root);
     }
 
     // Getters and setters
