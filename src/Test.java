@@ -1,12 +1,10 @@
 import tree.BPlusTree;
+
 import java.util.*;
 
 public class Test {
     public static void main(String[] args) {
-        int[] testData = {13, 2, 16, 14, 10, 13, 16, 7};
-        String filename = "";
-        BPlusTree tree = new BPlusTree(filename);
-
+        //int[] testData = {13, 2, 16, 14, 10, 13, 16, 7};
         userInterface();
     }
 
@@ -15,73 +13,76 @@ public class Test {
 
         Scanner in = new Scanner(System.in);
 
-        String command = "";
+        BPlusTree tree;
 
+        String command = "";
         String option = "";
-        String argument = "";
-        while (!command.equals("exit")) {
-            System.out.print(">");
+
+        while (!option.equals("exit")) {
+            System.out.print("> ");
             command = in.nextLine();
             String[] s = handler(command);
             option = s[0];
-            argument = s[1];
+            if (s.length > 1) {
+                switch (option) {
+                    case "btree":
+                        // argument 1 = "-help"
+                        if (s[1].equals("-help")) {
+                            System.out.println("Usage: btree [fname]\n"
+                                    + "fname: the name of the data file "
+                                    + "storing the search key values");
+                        } else {
+                            tree = new BPlusTree(s[1]);
+                            System.out.println("Building an initial B+-Tree...\n" +
+                                    "Launching B+-Tree test program…\n");
 
-            switch (option) {
-                case "btree":
-                    if (argument.equals("-help")) {
-                        System.out.println("Usage: btree [fname]\n"
-                                + "fname: the name of the data file "
-                                + "storing the search key values");
-                    }else {
-                        //createBPlusTree(argument);
-                        System.out.println("Building an initial B+-Tree...\n" +
-                                "Launching B+-Tree test program…\n" +
-                                "Waiting for your commands: ");
-                    }
-                    break;
-                case "insert":
-                    //insert(argument);
-                    break;
-                case "delete":
-                    //delete(argument);
-                    break;
-                case "print":
-                    //print(argument);
-                    break;
-                case "stat":
-                    //stat(argument);
-                    break;
-                case "exit":
-                    break;
-                default:
-                    System.out.println("Invalid command");
-                    break;
+                            while (!option.equals("quit")) {
+                                System.out.print("Waiting for your commands: ");
+                                command = in.nextLine();
+                                s = handler(command);
+                                option = s[0];
+
+                                switch (option) {
+                                    case "insert":
+                                        //tree.insert(argument);
+                                        break;
+                                    case "delete":
+                                        //tree.delete(argument);
+                                        break;
+                                    case "print":
+                                        //tree.print(argument);
+                                        break;
+                                    case "stat":
+                                        //stat(argument);
+                                        break;
+                                    case "search":
+                                        tree.search(Integer.parseInt(s[1]), Integer.parseInt(s[2]));
+                                        break;
+                                    case "quit":
+                                        System.out.println("Thanks! Byebye\uF04A");
+                                        break;
+                                    default:
+                                        System.out.println("Invalid command");
+                                }
+                            }
+                        }
+
+                        break;
+                    case "exit":
+                        break;
+                    default:
+                        System.out.println("Invalid command");
+                }
+            } else if (!option.equals("exit")) {
+                System.out.println("Invalid command");
             }
         }
-        System.out.println("Thanks! Byebye\uF04A");
+        System.out.println("Tree End.");
         in.close();
     }
 
     public static String[] handler(String command) {
-        String[] s = new String[2];
-        s[0] = "";
-        s[1] = "";
-
-        int i = 0;
-        while ((i < command.length()) && !(command.charAt(i) == ' ')) {
-            s[0] += command.charAt(i);
-            i++;
-            // System.out.println(s[0]);
-        }
-
-        i++;
-
-        while (i < command.length()) {
-            s[1] += command.charAt(i);
-            i++;
-            // System.out.println(s[1]);
-        }
-
-        return s;
+        String[] arr = command.split("\\s+");
+        return arr;
     }
 }
