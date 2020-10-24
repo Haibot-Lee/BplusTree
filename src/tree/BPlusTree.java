@@ -47,6 +47,8 @@ public class BPlusTree {
 
                 keys[keyCnt++] = key;
                 childNodes[keyCnt] = newChild;
+                newChild.parentNode = this; // TODO: delete redundant lines setting newChild's parentNode in other
+                                            // places
                 int tmpKey;
                 Node tmpNode;
                 for (int i = keyCnt - 1; i > 0; i--) {
@@ -244,14 +246,14 @@ public class BPlusTree {
         }
 
         // Insert
-        for (int i = 0; i < initialData.size(); i++) {
-            insert(initialData.get(i), null);
-        }
+        // for (int i = 0; i < initialData.size(); i++) {
+        // insert(initialData.get(i), null);
+        // }
 
         // Bulk loading
-        Collections.sort(initialData);                      //sort
+        Collections.sort(initialData); // sort
 
-        List<LeafNode> leaf = new ArrayList<LeafNode>();    //construct leaf node
+        List<LeafNode> leaf = new ArrayList<LeafNode>(); // construct leaf node
         LeafNode temp = new LeafNode();
         for (int i = 0; i < initialData.size(); i++) {
             temp.keys[i % (fanOut - 1)] = initialData.get(i);
@@ -275,14 +277,14 @@ public class BPlusTree {
             leaf.add(temp);
         }
 
-        //test leaf
-//        for (int i = 0; i < leaf.size(); i++) {
-//            System.out.print(leaf.get(i).keyCnt + " || ");
-//            for (int j = 0; j < leaf.get(i).keys.length; j++) {
-//                System.out.print(leaf.get(i).keys[j] + " ");
-//            }
-//            System.out.println();
-//        }
+        // test leaf
+        // for (int i = 0; i < leaf.size(); i++) {
+        // System.out.print(leaf.get(i).keyCnt + " || ");
+        // for (int j = 0; j < leaf.get(i).keys.length; j++) {
+        // System.out.print(leaf.get(i).keys[j] + " ");
+        // }
+        // System.out.println();
+        // }
 
         // Construct tree
         if (leaf.size() == 1) {
@@ -468,7 +470,7 @@ public class BPlusTree {
         return this.fillFactor;
     }
 
-    //Test Area
+    // Test Area
     public static void main(String[] args) {
         BPlusTree tree = new BPlusTree("testData.txt");
 
@@ -476,7 +478,7 @@ public class BPlusTree {
 
         System.out.println("\n");
         tree.search(1, 9);
-//        tree.dumpStatistics();
+        // tree.dumpStatistics();
     }
 
 }
