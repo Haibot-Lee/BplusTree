@@ -43,6 +43,7 @@ public class BPlusTree {
         void insert(int key, Node newChild) {
             if (keyCnt == fanOut - 1) {
                 split(key, newChild);
+                numOfNodes++;
             } else {
 
                 keys[keyCnt++] = key;
@@ -65,6 +66,7 @@ public class BPlusTree {
                     }
                 }
             }
+            numOfIndexEntries++;
         }
 
         private void split(int key, Node newChild) {
@@ -119,6 +121,7 @@ public class BPlusTree {
                 parentNode = new InternalNode(keys[keyCnt - 1], this, sib);
                 sib.parentNode = parentNode;
                 root = parentNode;
+                height++;
             } else {
                 // otherwise, insert key to the parent
                 parentNode.insert(keys[keyCnt - 1], sib);
@@ -218,8 +221,10 @@ public class BPlusTree {
                     parentNode.insert(temp[temp.length / 2], rightSibling);
                     rightSibling.parentNode = parentNode;
                 }
-            }
 
+                numOfNodes++;
+
+            }
         }
 
         @Override
@@ -244,6 +249,9 @@ public class BPlusTree {
         } catch (Exception e) {
             System.err.println(e);
         }
+
+        // Update statistics
+        numOfDataEntries = initialData.size();
 
         // Insert
         // for (int i = 0; i < initialData.size(); i++) {
@@ -282,6 +290,8 @@ public class BPlusTree {
                 leaf.get(i).rightSibling = leaf.get(i + 1);
             }
         }
+        // Update statistics
+        numOfNodes = leaf.size();
 
         // test leaf
         // for (int i = 0; i < leaf.size(); i++) {
@@ -298,6 +308,10 @@ public class BPlusTree {
             return;
         } else {
             root = new InternalNode(leaf.get(1).keys[0], leaf.get(0), leaf.get(1));
+            // Update statistics
+            numOfNodes++;
+            height = 1;
+            numOfIndexEntries = 1;
         }
         for (int i = 2; i < leaf.size(); i++) {
             LeafNode prev = leaf.get(i - 1);
@@ -340,6 +354,7 @@ public class BPlusTree {
         LeafNode target = search(key);
         // System.out.println(target.keyCnt);
         target.insert(key); // TODO: insert record pointer
+        numOfDataEntries++;
         this.printTree();
         System.out.println();
         System.out.println();
@@ -435,7 +450,7 @@ public class BPlusTree {
         System.out.println("Total No. of nodes in the tree: " + numOfNodes);
         System.out.println("Total No. of data entries in the tree: " + numOfDataEntries);
         System.out.println("Total No. of index entries in the tree: " + numOfIndexEntries);
-        System.out.println("Average fill factor (used space/total space) of the nodes: " + fillFactor);
+        System.out.println("Average fill factor (used space/total space) of the nodes: " + ((double) (numOfIndexEntries + numOfDataEntries)) / (numOfNodes * (fanOut - 1)));  // ???
         System.out.println("Height of tree: " + height);
     }
 
@@ -451,31 +466,6 @@ public class BPlusTree {
         printLevel(rootLevel);
     }
 
-    // Getters and setters
-    public int getNumOfNodes() {
-        return this.numOfNodes;
-    }
-
-    public int getHeight() {
-        return this.height;
-    }
-
-    public int getFanOut() {
-        return this.fanOut;
-    }
-
-    public int getNumOfDataEntries() {
-        return this.numOfDataEntries;
-    }
-
-    public int getNumOfIndexEntries() {
-        return this.numOfIndexEntries;
-    }
-
-    public double getFillFactor() {
-        return this.fillFactor;
-    }
-
     // Test Area
     public static void main(String[] args) {
         BPlusTree tree = new BPlusTree("testData.txt");
@@ -484,7 +474,7 @@ public class BPlusTree {
 
         System.out.println("\n");
         tree.search(1, 9);
-        // tree.dumpStatistics();
+        tree.dumpStatistics();
     }
 
 }
