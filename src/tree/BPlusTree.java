@@ -267,14 +267,20 @@ public class BPlusTree {
             int giveNext = leaf.get(leaf.size() - 1).keys[leaf.get(leaf.size() - 1).keyCnt - 1];
             leaf.get(leaf.size() - 1).keys[leaf.get(leaf.size() - 1).keyCnt - 1] = 0;
             leaf.get(leaf.size() - 1).keyCnt--;
-
             temp.keys[temp.keyCnt] = temp.keys[temp.keyCnt - 1];
             temp.keys[temp.keyCnt - 1] = giveNext;
             temp.keyCnt++;
-
             leaf.add(temp);
         } else if (temp.keyCnt > 1) {
             leaf.add(temp);
+        }
+        for (int i = 0; i < leaf.size(); i++) {
+            if (i != 0) {
+                leaf.get(i).leftSibling = leaf.get(i - 1);
+            }
+            if (i != leaf.size() - 1) {
+                leaf.get(i).rightSibling = leaf.get(i + 1);
+            }
         }
 
         // test leaf
