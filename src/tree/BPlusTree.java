@@ -1,4 +1,6 @@
 package tree;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BPlusTree {
     private Node root;
@@ -307,7 +309,31 @@ public class BPlusTree {
     }
 
     public void search(int key1, int key2) {
+        LeafNode n = search(key1);
+        ArrayList<Integer> results = new ArrayList<>();
 
+        while(true) {
+            // traverse a leaf node
+            for (int key : n.keys) {
+                if (key >= key1) {
+                    if (key <= key2) {
+                        results.add(key);
+                    }else {
+                        String result = "";
+                        for (Integer k : results) {
+                            result += k + " ";
+                        }
+                        System.out.println(result);
+                        return;
+                    }
+                }
+            }
+
+            // move to the next leaf node
+            if (n.rightSibling != null) {
+                n = n.rightSibling;
+            }
+        }
     }
 
     public void dumpStatistics() {
@@ -372,6 +398,8 @@ public class BPlusTree {
         tree.insert(75, null);
         tree.printTree();
 
+        System.out.println();
+        tree.search(29, 50);
     }
 
 }
