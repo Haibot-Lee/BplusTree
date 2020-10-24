@@ -1,5 +1,10 @@
 package tree;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
 public class BPlusTree {
     private Node root;
     private int numOfNodes;
@@ -222,7 +227,21 @@ public class BPlusTree {
         this.root = new LeafNode();  // root is initially a leaf node
 
         // Read file
-        // ...
+        List<Integer> initialData = new ArrayList<Integer>();
+        try {
+            File file = new File(filename);
+            Scanner in = new Scanner(file);
+            while (in.hasNextLine()) {
+                initialData.add(in.nextInt());
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
+        // Insert
+        for (int i = 1; i < initialData.size(); i++) {
+            insert(initialData.get(i), null);
+        }
 
         // Bulk loading
         // ...
@@ -265,10 +284,10 @@ public class BPlusTree {
                         break;
                     }
                 }
-            }else if (n instanceof LeafNode) {
+            } else if (n instanceof LeafNode) {
                 for (int i = 0; i < n.keyCnt; i++) {
                     int delta = key - n.keys[i];
-                    if (delta == 0){
+                    if (delta == 0) {
                         System.out.println(n.keys[i] + " is here!");
                         return;
                     }
@@ -319,6 +338,17 @@ public class BPlusTree {
 
     public double getFillFactor() {
         return this.fillFactor;
+    }
+
+    //Test Area
+    public static void main(String[] args) {
+        BPlusTree tree = new BPlusTree("testData.txt");
+        for (int i = 0; i < 5; i++) {
+            tree.insert(10 - i, null);
+        }
+
+        tree.printTree();
+
     }
 
 }
