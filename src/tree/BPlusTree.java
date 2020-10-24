@@ -75,7 +75,7 @@ public class BPlusTree {
                 newChild = childNodes[keyCnt];
                 childNodes[keyCnt] = tmpNode;
             }
-
+            // sort keys and succeeding children in the node
             for (int i = keyCnt - 1; i > 0; i--) {
                 if (keys[i] < keys[i - 1]) {
                     tmpKey = keys[i];
@@ -95,23 +95,29 @@ public class BPlusTree {
                     childNodes[keyCnt / 2 + 2]);
             this.keyCnt--; // the key moved to sib
 
+            // Move keys and children to sib
             for (int i = 1; i < fanOut / 2 - 1; i++) {
                 sib.keys[i] = this.keys[(fanOut - 1) / 2 + 1 + i];
                 sib.childNodes[i + 1] = this.childNodes[(fanOut - 1) / 2 + 2 + i];
+                sib.childNodes[i + 1].parentNode = sib;  // change parent of the moved children from `this` to `sib`
                 this.keyCnt--;
                 sib.keyCnt++;
             }
             // add the largest
             sib.keys[(fanOut - 2) / 2] = key;
             sib.childNodes[(fanOut - 2) / 2 + 1] = newChild;
+            sib.childNodes[(fanOut - 2) / 2 + 1].parentNode = sib;
             sib.keyCnt++;
 
             // if this is the root
             if (parentNode == null) {
-                root = new InternalNode(keys[keyCnt - 1], this, sib);
+                parentNode = new InternalNode(keys[keyCnt - 1], this, sib);
+                sib.parentNode = parentNode;
+                root = parentNode;
             } else {
                 // otherwise, insert key to the parent
                 parentNode.insert(keys[keyCnt - 1], sib);
+                sib.parentNode = parentNode;
             }
             this.keyCnt--; // the key moved to par
         }
@@ -362,6 +368,8 @@ public class BPlusTree {
         tree.insert(74, null);
         tree.insert(52, null);
         tree.insert(15, null);
+        tree.insert(79, null);
+        tree.insert(75, null);
         tree.printTree();
 
     }
