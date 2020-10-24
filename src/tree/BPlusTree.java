@@ -1,10 +1,7 @@
 package tree;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class BPlusTree {
     private Node root;
@@ -247,12 +244,21 @@ public class BPlusTree {
         }
 
         // Insert
-        for (int i = 1; i < initialData.size(); i++) {
+        for (int i = 0; i < initialData.size(); i++) {
             insert(initialData.get(i), null);
         }
 
         // Bulk loading
-        // ...
+        Collections.sort(initialData);
+        List<LeafNode> leaf = new ArrayList<LeafNode>();
+        LeafNode temp = new LeafNode();
+        for (int i = 0; i < initialData.size(); i++) {
+            if (i % (fanOut - 1) == 0) {
+                leaf.add(temp);
+                temp = new LeafNode();
+            }
+            System.out.print(initialData.get(i) + " ");
+        }
 
     }
 
@@ -381,6 +387,11 @@ public class BPlusTree {
 
     public void dumpStatistics() {
 
+        System.out.println("Total No. of nodes in the tree: " + numOfNodes);
+        System.out.println("Total No. of data entries in the tree: " + numOfDataEntries);
+        System.out.println("Total No. of index entries in the tree: " + numOfIndexEntries);
+        System.out.println("Average fill factor (used space/total space) of the nodes: " + fillFactor);
+        System.out.println("Height of tree: " + height);
     }
 
     public void printNode(Node n) {
@@ -420,6 +431,7 @@ public class BPlusTree {
         return this.fillFactor;
     }
 
+    //Test Area
     public static void main(String[] args) {
         BPlusTree tree = new BPlusTree("testData.txt");
 
@@ -427,6 +439,7 @@ public class BPlusTree {
 
         System.out.println("\n");
         tree.search(1, 9);
+//        tree.dumpStatistics();
     }
 
 }
