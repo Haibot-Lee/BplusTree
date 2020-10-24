@@ -45,23 +45,24 @@ public class BPlusTree {
         void insert(int key, Node newChild) {
             if (keyCnt == fanOut - 1) {
                 split(key, newChild);
-            }
+            } else {
 
-            keys[keyCnt++] = key;
-            childNodes[keyCnt] = newChild;
-            int tmpKey;
-            Node tmpNode;
-            for (int i = keyCnt - 1; i > 0; i--) {
-                if (keys[i] < keys[i - 1]) {
-                    tmpKey = keys[i];
-                    keys[i] = keys[i - 1];
-                    keys[i - 1] = tmpKey;
+                keys[keyCnt++] = key;
+                childNodes[keyCnt] = newChild;
+                int tmpKey;
+                Node tmpNode;
+                for (int i = keyCnt - 1; i > 0; i--) {
+                    if (keys[i] < keys[i - 1]) {
+                        tmpKey = keys[i];
+                        keys[i] = keys[i - 1];
+                        keys[i - 1] = tmpKey;
 
-                    tmpNode = childNodes[i + 1];
-                    childNodes[i + 1] = childNodes[i];
-                    childNodes[i] = tmpNode;
-                } else {
-                    break;
+                        tmpNode = childNodes[i + 1];
+                        childNodes[i + 1] = childNodes[i];
+                        childNodes[i] = tmpNode;
+                    } else {
+                        break;
+                    }
                 }
             }
         }
@@ -79,7 +80,7 @@ public class BPlusTree {
                 newChild = childNodes[keyCnt];
                 childNodes[keyCnt] = tmpNode;
             }
-
+            // sort keys and succeeding children in the node
             for (int i = keyCnt - 1; i > 0; i--) {
                 if (keys[i] < keys[i - 1]) {
                     tmpKey = keys[i];
@@ -99,23 +100,29 @@ public class BPlusTree {
                     childNodes[keyCnt / 2 + 2]);
             this.keyCnt--; // the key moved to sib
 
+            // Move keys and children to sib
             for (int i = 1; i < fanOut / 2 - 1; i++) {
                 sib.keys[i] = this.keys[(fanOut - 1) / 2 + 1 + i];
                 sib.childNodes[i + 1] = this.childNodes[(fanOut - 1) / 2 + 2 + i];
+                sib.childNodes[i + 1].parentNode = sib;  // change parent of the moved children from `this` to `sib`
                 this.keyCnt--;
                 sib.keyCnt++;
             }
             // add the largest
             sib.keys[(fanOut - 2) / 2] = key;
             sib.childNodes[(fanOut - 2) / 2 + 1] = newChild;
+            sib.childNodes[(fanOut - 2) / 2 + 1].parentNode = sib;
             sib.keyCnt++;
 
             // if this is the root
             if (parentNode == null) {
-                new InternalNode(keys[keyCnt / 2], this, sib);
+                parentNode = new InternalNode(keys[keyCnt - 1], this, sib);
+                sib.parentNode = parentNode;
+                root = parentNode;
             } else {
                 // otherwise, insert key to the parent
-                parentNode.insert(keys[keyCnt / 2], sib);
+                parentNode.insert(keys[keyCnt - 1], sib);
+                sib.parentNode = parentNode;
             }
             this.keyCnt--; // the key moved to par
         }
@@ -224,7 +231,7 @@ public class BPlusTree {
     // Constructors
     public BPlusTree(String filename) {
         this.fanOut = 5;
-        this.root = new LeafNode();  // root is initially a leaf node
+        this.root = new LeafNode(); // root is initially a leaf node
 
         // Read file
         List<Integer> initialData = new ArrayList<Integer>();
@@ -263,42 +270,101 @@ public class BPlusTree {
     // Public methods
     public void insert(int key, Object record) {
         // TEST CODE START
-        ((LeafNode) root).insert(key);
+        // ((LeafNode) root).insert(key);
         // TEST CODE END
+        // System.out.println("Searching");
+        System.out.println("Insert " + key);
+        LeafNode target = search(key);
+        // System.out.println(target.keyCnt);
+        target.insert(key); // TODO: insert record pointer
+        this.printTree();
+        System.out.println();
+        System.out.println();
+        System.out.println();
     }
 
     public void delete(int key) {
 
     }
 
-    public void search(int key) {
+    public LeafNode search(int key) {
         Node n = root;
 
         while (n != null) {
             // layer of node
             if (n instanceof InternalNode) {
+                Node preChild = null;
                 for (int i = 0; i < n.keyCnt; i++) {
                     int delta = key - n.keys[i];
-                    if (delta <= 0) {
-                        n = ((InternalNode) n).childNodes[i - 1];
+                    if (delta < 0) { // if key < currentKey(i), then go to the preceding child
+                        preChild = ((InternalNode) n).childNodes[i];
                         break;
                     }
                 }
+                if (preChild != null) {
+                    n = preChild;
+                } else { // key is greater or equal than all existing keys
+                    n = ((InternalNode) n).childNodes[n.keyCnt];
+                }
+
+                // n = ((InternalNode) n).childNodes[n.keyCnt]; // key is larger than all
+                // existing keys. go to the last child
             } else if (n instanceof LeafNode) {
-                for (int i = 0; i < n.keyCnt; i++) {
-                    int delta = key - n.keys[i];
-                    if (delta == 0) {
-                        System.out.println(n.keys[i] + " is here!");
+                // for (int i = 0; i < n.keyCnt; i++) {
+                // // TODO: this comparison can be omitted since only target leafnode is needed
+                // int delta = key - n.keys[i];
+                // if (delta == 0) {
+                // System.out.println(n.keys[i] + " is here!");
+                // return (LeafNode) n;
+                // }
+                // }
+                return (LeafNode) n;
+            }
+        }
+        // Useless because not care the content of the leaf node
+
+        System.out.println("No Found");
+        return (LeafNode) n;
+
+    }
+
+    public void search(int key1, int key2) {
+        LeafNode n = search(key1);
+        ArrayList<Integer> results = new ArrayList<>();
+
+        while(true) {
+            // traverse a leaf node
+            for (int key : n.keys) {
+                if (key >= key1) {
+                    if (key <= key2) {
+                        results.add(key);
+                    }else {
+                        String result = "";
+                        for (Integer k : results) {
+                            result += k + " ";
+                        }
+                        if (result.equals("")) {
+                            System.out.println("Found nothing! ");
+                        }else {
+                            System.out.println(result);
+                        }
                         return;
                     }
                 }
             }
+
+            // move to the next leaf node
+            if (n.rightSibling != null) {
+                n = n.rightSibling;
+            }else {
+                String result = "";
+                for (Integer k : results) {
+                    result += k + " ";
+                }
+                System.out.println(result);
+                return;
+            }
         }
-        System.out.println("No Found");
-    }
-
-    public void search(int key1, int key2) {
-
     }
 
     public void dumpStatistics() {
@@ -340,15 +406,31 @@ public class BPlusTree {
         return this.fillFactor;
     }
 
-    //Test Area
     public static void main(String[] args) {
-        BPlusTree tree = new BPlusTree("testData.txt");
-        for (int i = 0; i < 5; i++) {
-            tree.insert(10 - i, null);
-        }
+        System.out.println("abc");
+        BPlusTree tree = new BPlusTree("filename");
 
+        tree.insert(10, null);
+        tree.insert(28, null);
+        tree.insert(14, null);
+        tree.insert(20, null);
+        tree.insert(24, null);
+        tree.insert(29, null);
+        tree.insert(16, null);
+        tree.insert(12, null);
+        tree.insert(45, null);
+        tree.insert(78, null);
+        tree.insert(71, null);
+        tree.insert(56, null);
+        tree.insert(74, null);
+        tree.insert(52, null);
+        tree.insert(15, null);
+        tree.insert(79, null);
+        tree.insert(75, null);
         tree.printTree();
 
+        System.out.println("\n");
+        tree.search(1, 9);
     }
 
 }
