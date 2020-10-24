@@ -407,26 +407,8 @@ public class BPlusTree {
     }
 
     public static void main(String[] args) {
-        System.out.println("abc");
-        BPlusTree tree = new BPlusTree("filename");
+        BPlusTree tree = new BPlusTree("testData.txt");
 
-        tree.insert(10, null);
-        tree.insert(28, null);
-        tree.insert(14, null);
-        tree.insert(20, null);
-        tree.insert(24, null);
-        tree.insert(29, null);
-        tree.insert(16, null);
-        tree.insert(12, null);
-        tree.insert(45, null);
-        tree.insert(78, null);
-        tree.insert(71, null);
-        tree.insert(56, null);
-        tree.insert(74, null);
-        tree.insert(52, null);
-        tree.insert(15, null);
-        tree.insert(79, null);
-        tree.insert(75, null);
         tree.printTree();
 
         System.out.println("\n");
