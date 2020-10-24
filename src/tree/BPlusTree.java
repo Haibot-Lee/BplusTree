@@ -299,7 +299,7 @@ public class BPlusTree {
         } else {
             root = new InternalNode(leaf.get(1).keys[0], leaf.get(0), leaf.get(1));
         }
-        for (int i = 1; i < leaf.size(); i++) {
+        for (int i = 2; i < leaf.size(); i++) {
             LeafNode prev = leaf.get(i - 1);
             LeafNode curr = leaf.get(i);
             prev.parentNode.insert(curr.keys[0], curr);
