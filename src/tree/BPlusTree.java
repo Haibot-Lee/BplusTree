@@ -249,17 +249,40 @@ public class BPlusTree {
         }
 
         // Bulk loading
-        // Load leaves
-        Collections.sort(initialData);
-        List<LeafNode> leaf = new ArrayList<LeafNode>();
+        Collections.sort(initialData);                      //sort
+
+        List<LeafNode> leaf = new ArrayList<LeafNode>();    //construct leaf node
         LeafNode temp = new LeafNode();
         for (int i = 0; i < initialData.size(); i++) {
-            if (i % (fanOut - 1) == 0) {
+            temp.keys[i % (fanOut - 1)] = initialData.get(i);
+            temp.keyCnt++;
+            if (i % (fanOut - 1) == 3) {
                 leaf.add(temp);
                 temp = new LeafNode();
             }
-            System.out.print(initialData.get(i) + " ");
         }
+        if (temp.keyCnt == 1) {
+            int giveNext = leaf.get(leaf.size() - 1).keys[leaf.get(leaf.size() - 1).keyCnt - 1];
+            leaf.get(leaf.size() - 1).keys[leaf.get(leaf.size() - 1).keyCnt - 1] = 0;
+            leaf.get(leaf.size() - 1).keyCnt--;
+
+            temp.keys[temp.keyCnt] = temp.keys[temp.keyCnt - 1];
+            temp.keys[temp.keyCnt - 1] = giveNext;
+            temp.keyCnt++;
+
+            leaf.add(temp);
+        } else if (temp.keyCnt > 1) {
+            leaf.add(temp);
+        }
+
+        //test leaf
+//        for (int i = 0; i < leaf.size(); i++) {
+//            System.out.print(leaf.get(i).keyCnt + " || ");
+//            for (int j = 0; j < leaf.get(i).keys.length; j++) {
+//                System.out.print(leaf.get(i).keys[j] + " ");
+//            }
+//            System.out.println();
+//        }
 
         // Construct tree
         if (leaf.size() == 1) {
