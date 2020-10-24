@@ -304,8 +304,11 @@ public class BPlusTree {
                 return (LeafNode) n;
             }
         }
+        // Useless because not care the content of the leaf node
+
         System.out.println("No Found");
         return (LeafNode) n;
+
     }
 
     public void search(int key1, int key2) {
@@ -323,7 +326,11 @@ public class BPlusTree {
                         for (Integer k : results) {
                             result += k + " ";
                         }
-                        System.out.println(result);
+                        if (result.equals("")) {
+                            System.out.println("Found nothing! ");
+                        }else {
+                            System.out.println(result);
+                        }
                         return;
                     }
                 }
@@ -332,6 +339,13 @@ public class BPlusTree {
             // move to the next leaf node
             if (n.rightSibling != null) {
                 n = n.rightSibling;
+            }else {
+                String result = "";
+                for (Integer k : results) {
+                    result += k + " ";
+                }
+                System.out.println(result);
+                return;
             }
         }
     }
@@ -398,8 +412,8 @@ public class BPlusTree {
         tree.insert(75, null);
         tree.printTree();
 
-        System.out.println();
-        tree.search(29, 50);
+        System.out.println("\n");
+        tree.search(1, 9);
     }
 
 }
