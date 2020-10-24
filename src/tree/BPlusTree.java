@@ -1,5 +1,7 @@
 package tree;
+
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class BPlusTree {
@@ -101,7 +103,7 @@ public class BPlusTree {
             for (int i = 1; i < fanOut / 2 - 1; i++) {
                 sib.keys[i] = this.keys[(fanOut - 1) / 2 + 1 + i];
                 sib.childNodes[i + 1] = this.childNodes[(fanOut - 1) / 2 + 2 + i];
-                sib.childNodes[i + 1].parentNode = sib;  // change parent of the moved children from `this` to `sib`
+                sib.childNodes[i + 1].parentNode = sib; // change parent of the moved children from `this` to `sib`
                 this.keyCnt--;
                 sib.keyCnt++;
             }
@@ -239,15 +241,26 @@ public class BPlusTree {
     }
 
     // Private methods
-    private void printTree(Node n) {
-        printNode(n);
-        System.out.println();
-        if (n instanceof InternalNode) {
-            for (int i = 0; i < n.keyCnt + 1; i++) {
-                printNode(((InternalNode) n).childNodes[i]);
-                System.out.print(" - ");
-            }
+    private void printLevel(List<Node> nodes) {
+        List<Node> nextLevel = new LinkedList<>();
+        // print current level
+        for (Node n : nodes) {
+            printNode(n);
+            System.out.print(" - ");
         }
+        System.out.println();
+
+        // if this is an internal level, add children to `nextLevel` and recurse
+        // otherwise, return;
+        if (nodes.get(0) instanceof InternalNode) {
+            for (Node n : nodes) {
+                for (int i = 0; i < n.keyCnt + 1; i++) {
+                    nextLevel.add(((InternalNode) n).childNodes[i]);
+                }
+            }
+            printLevel(nextLevel);
+        }
+
     }
 
     // Public methods
@@ -315,20 +328,20 @@ public class BPlusTree {
         LeafNode n = search(key1);
         ArrayList<Integer> results = new ArrayList<>();
 
-        while(true) {
+        while (true) {
             // traverse a leaf node
             for (int key : n.keys) {
                 if (key >= key1) {
                     if (key <= key2) {
                         results.add(key);
-                    }else {
+                    } else {
                         String result = "";
                         for (Integer k : results) {
                             result += k + " ";
                         }
                         if (result.equals("")) {
                             System.out.println("Found nothing! ");
-                        }else {
+                        } else {
                             System.out.println(result);
                         }
                         return;
@@ -339,7 +352,7 @@ public class BPlusTree {
             // move to the next leaf node
             if (n.rightSibling != null) {
                 n = n.rightSibling;
-            }else {
+            } else {
                 String result = "";
                 for (Integer k : results) {
                     result += k + " ";
@@ -361,7 +374,9 @@ public class BPlusTree {
     }
 
     public void printTree() {
-        printTree(root);
+        List<Node> rootLevel = new LinkedList<>();
+        rootLevel.add(root);
+        printLevel(rootLevel);
     }
 
     // Getters and setters
