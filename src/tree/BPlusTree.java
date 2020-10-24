@@ -48,7 +48,7 @@ public class BPlusTree {
                 keys[keyCnt++] = key;
                 childNodes[keyCnt] = newChild;
                 newChild.parentNode = this; // TODO: delete redundant lines setting newChild's parentNode in other
-                                            // places
+                // places
                 int tmpKey;
                 Node tmpNode;
                 for (int i = keyCnt - 1; i > 0; i--) {
@@ -143,8 +143,8 @@ public class BPlusTree {
             records = new Object[fanOut - 1];
         }
 
-        void insert(int key) {
-            if (keyCnt < keys.length) {
+        void insert(int key, Object record) {
+            if (keyCnt < keys.length) {         //insert directly
                 boolean ifInsert = false;
                 int temp = 0;
                 for (int i = 0; i < keyCnt + 1; i++) {
@@ -152,6 +152,7 @@ public class BPlusTree {
                         if (key < keys[i]) {
                             temp = keys[i];
                             keys[i] = key;
+                            records[i] = record;
                             ifInsert = true;
                         }
                     } else {
@@ -162,9 +163,10 @@ public class BPlusTree {
                 }
                 if (!ifInsert) {
                     keys[keyCnt] = key;
+                    records[keyCnt] = record;
                 }
                 keyCnt++;
-            } else {
+            } else {                            //spilt needed
                 if (rightSibling == null) {
                     rightSibling = new LeafNode();
                     rightSibling.leftSibling = this;
@@ -199,6 +201,9 @@ public class BPlusTree {
                 for (int i = 0; i < keys.length; i++) {
                     if (i < temp.length / 2) {
                         keys[i] = temp[i];
+                        if (keys[i] == key) {
+                            records[i] = record;
+                        }
                         keyCnt++;
                     } else {
                         keys[i] = 0;
@@ -206,6 +211,9 @@ public class BPlusTree {
 
                     if (i <= temp.length / 2) {
                         rightSibling.keys[i] = temp[i + temp.length / 2];
+                        if (rightSibling.keys[i] == key) {
+                            rightSibling.records[i] = record;
+                        }
                         rightSibling.keyCnt++;
                     }
                 }
@@ -283,14 +291,14 @@ public class BPlusTree {
             }
         }
 
-        // test leaf
-        // for (int i = 0; i < leaf.size(); i++) {
-        // System.out.print(leaf.get(i).keyCnt + " || ");
-        // for (int j = 0; j < leaf.get(i).keys.length; j++) {
-        // System.out.print(leaf.get(i).keys[j] + " ");
-        // }
-        // System.out.println();
-        // }
+        //test leaf
+//         for (int i = 0; i < leaf.size(); i++) {
+//         System.out.print(leaf.get(i).keyCnt + " || ");
+//         for (int j = 0; j < leaf.get(i).keys.length; j++) {
+//         System.out.print(leaf.get(i).keys[j] + " ");
+//         }
+//         System.out.println();
+//         }
 
         // Construct tree
         if (leaf.size() == 1) {
@@ -339,7 +347,7 @@ public class BPlusTree {
         System.out.println("Insert " + key);
         LeafNode target = search(key);
         // System.out.println(target.keyCnt);
-        target.insert(key); // TODO: insert record pointer
+        target.insert(key, record);
         this.printTree();
         System.out.println();
         System.out.println();
