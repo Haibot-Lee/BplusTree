@@ -1,8 +1,10 @@
 package tree;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 
 public class BPlusTree {
     private Node root;
@@ -233,7 +235,21 @@ public class BPlusTree {
         this.root = new LeafNode(); // root is initially a leaf node
 
         // Read file
-        // ...
+        List<Integer> initialData = new ArrayList<Integer>();
+        try {
+            File file = new File(filename);
+            Scanner in = new Scanner(file);
+            while (in.hasNextLine()) {
+                initialData.add(in.nextInt());
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
+        // Insert
+        for (int i = 1; i < initialData.size(); i++) {
+            insert(initialData.get(i), null);
+        }
 
         // Bulk loading
         // ...
@@ -405,26 +421,8 @@ public class BPlusTree {
     }
 
     public static void main(String[] args) {
-        System.out.println("abc");
-        BPlusTree tree = new BPlusTree("filename");
+        BPlusTree tree = new BPlusTree("testData.txt");
 
-        tree.insert(10, null);
-        tree.insert(28, null);
-        tree.insert(14, null);
-        tree.insert(20, null);
-        tree.insert(24, null);
-        tree.insert(29, null);
-        tree.insert(16, null);
-        tree.insert(12, null);
-        tree.insert(45, null);
-        tree.insert(78, null);
-        tree.insert(71, null);
-        tree.insert(56, null);
-        tree.insert(74, null);
-        tree.insert(52, null);
-        tree.insert(15, null);
-        tree.insert(79, null);
-        tree.insert(75, null);
         tree.printTree();
 
         System.out.println("\n");
