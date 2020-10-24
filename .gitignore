@@ -179,3 +179,4 @@ local.properties
 # Others
 lib/
 .idea/
+.vscode/
