@@ -249,6 +249,7 @@ public class BPlusTree {
         }
 
         // Bulk loading
+        // Load leaves
         Collections.sort(initialData);
         List<LeafNode> leaf = new ArrayList<LeafNode>();
         LeafNode temp = new LeafNode();
@@ -258,6 +259,19 @@ public class BPlusTree {
                 temp = new LeafNode();
             }
             System.out.print(initialData.get(i) + " ");
+        }
+
+        // Construct tree
+        if (leaf.size() == 1) {
+            root = leaf.get(0);
+            return;
+        } else {
+            root = new InternalNode(leaf.get(1).keys[0], leaf.get(0), leaf.get(1));
+        }
+        for (int i = 1; i < leaf.size(); i++) {
+            LeafNode prev = leaf.get(i - 1);
+            LeafNode curr = leaf.get(i);
+            prev.parentNode.insert(curr.keys[0], curr);
         }
 
     }
