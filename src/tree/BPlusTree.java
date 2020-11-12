@@ -27,6 +27,16 @@ public class BPlusTree {
 
         abstract void delete(int key);
 
+        @Override
+        public String toString() {
+            String str = "(";
+            for (int i = 0; i < this.keyCnt; i++) {
+                str += String.format("%d, ", this.keys[i]);
+            }
+            str = str.replaceAll(", $", "");
+            str += ")";
+            return str;
+        }
     }
 
     private class InternalNode extends Node {
@@ -361,12 +371,12 @@ public class BPlusTree {
         // otherwise, return;
         if (nodes.get(0) instanceof InternalNode) {
             for (Node n : nodes) {
-                System.out.printf("%d -> ", ((InternalNode) n).printId);
+                String str = String.format("%d -> ", ((InternalNode) n).printId);
                 for (int i = 0; i < n.keyCnt + 1; i++) {
-                    System.out.print(((InternalNode) n).childNodes[i].printId + ", ");
+                    str += String.format(((InternalNode) n).childNodes[i].printId + ", ");
                     nextLevel.add(((InternalNode) n).childNodes[i]);
                 }
-                System.out.println();
+                System.out.println(str.replaceAll(", $", ""));
             }
             printLevel(nextLevel);
         }
@@ -374,9 +384,7 @@ public class BPlusTree {
 
     private void printNodes(List<Node> nodes) {
         for (Node n : nodes) {
-            System.out.print(n.printId + ": (");
-            printNode(n);
-            System.out.println(")");
+            System.out.println(n.printId + ": " + n.toString());
         }
     }
 
@@ -490,11 +498,6 @@ public class BPlusTree {
         System.out.println("Height of tree: " + height);
     }
 
-    public void printNode(Node n) {
-        for (int i = 0; i < n.keyCnt; i++) {
-            System.out.print("| " + n.keys[i] + " |");
-        }
-    }
 
     public void printTree() {
         nodeCnt = 0;
@@ -502,7 +505,10 @@ public class BPlusTree {
         List<Node> rootLevel = new LinkedList<>();
         rootLevel.add(root);
         assignPrintId(rootLevel);
+        System.out.println("Tree Structure: ");
         printLevel(rootLevel);
+        System.out.println();
+        System.out.println("Node content: ");
         printNodes(levelOrderedNodes);
     }
 
