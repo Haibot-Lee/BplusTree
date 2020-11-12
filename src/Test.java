@@ -44,19 +44,37 @@ public class Test {
 
                                 switch (option) {
                                     case "insert":
-                                        //tree.insert(argument);
+                                        if (s.length != 2) {
+                                            System.out.println("Invalid number of arguments\nUsage: insert <key>");
+                                            break;
+                                        }
+                                        // parse key to int
+                                        try {
+                                            int key = Integer.parseInt(s[1]);
+                                            tree.insert(key, null);
+                                        } catch (NumberFormatException e) {
+                                            System.out.println("Only integer keys are supported");
+                                        }
                                         break;
                                     case "delete":
-                                        //tree.delete(argument);
+//                                        tree.delete(argument);
                                         break;
                                     case "print":
-                                        //tree.print(argument);
+                                        tree.printTree();
                                         break;
                                     case "stat":
-                                        //stat(argument);
+                                        tree.dumpStatistics();
                                         break;
                                     case "search":
-                                        tree.search(Integer.parseInt(s[1]), Integer.parseInt(s[2]));
+                                        if (s.length != 3) {
+                                            System.out.println("Invalid number of arguments\nUsage: search <lower> <upper>");
+                                            break;
+                                        }
+                                        try {
+                                            tree.search(Integer.parseInt(s[1]), Integer.parseInt(s[2]));
+                                        } catch (NumberFormatException e) {
+                                            System.out.println("Only integer keys are supported");
+                                        }
                                         break;
                                     case "quit":
                                         System.out.println("Thanks! Byebye\uF04A");
@@ -82,7 +100,7 @@ public class Test {
     }
 
     public static String[] handler(String command) {
-        String[] arr = command.split("\\s+");
+        String[] arr = command.trim().split("\\s+");
         return arr;
     }
 }
