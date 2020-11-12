@@ -239,6 +239,7 @@ public class BPlusTree {
                     parentNode = new InternalNode(temp[temp.length / 2], this, rightSibling);
                     root = parentNode;
                     rightSibling.parentNode = parentNode;
+                    height++;
                 } else {
                     parentNode.insert(temp[temp.length / 2], rightSibling);
                     rightSibling.parentNode = parentNode;
