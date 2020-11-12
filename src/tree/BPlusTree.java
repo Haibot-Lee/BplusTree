@@ -272,18 +272,12 @@ public class BPlusTree {
             e.printStackTrace();
         }
 
-        // Update statistics
-        numOfDataEntries = initialData.size();
-
-        // Insert
-        // for (int i = 0; i < initialData.size(); i++) {
-        // insert(initialData.get(i), null);
-        // }
+        numOfDataEntries = initialData.size(); // Update statistics
 
         // Bulk loading
-        Collections.sort(initialData); // sort
+        Collections.sort(initialData);      // sort
 
-        List<LeafNode> leaf = new ArrayList<LeafNode>(); // construct leaf node
+        List<LeafNode> leaf = new ArrayList<LeafNode>();     // construct leaf node
         LeafNode temp = new LeafNode();
         for (int i = 0; i < initialData.size(); i++) {
             temp.keys[i % (fanOut - 1)] = initialData.get(i);
@@ -293,15 +287,16 @@ public class BPlusTree {
                 temp = new LeafNode();
             }
         }
-        if (temp.keyCnt == 1) {
+        if (temp.keyCnt == 1 && initialData.size() > 1) {
             int giveNext = leaf.get(leaf.size() - 1).keys[leaf.get(leaf.size() - 1).keyCnt - 1];
+
             leaf.get(leaf.size() - 1).keys[leaf.get(leaf.size() - 1).keyCnt - 1] = 0;
             leaf.get(leaf.size() - 1).keyCnt--;
             temp.keys[temp.keyCnt] = temp.keys[temp.keyCnt - 1];
             temp.keys[temp.keyCnt - 1] = giveNext;
             temp.keyCnt++;
             leaf.add(temp);
-        } else if (temp.keyCnt > 1) {
+        } else {
             leaf.add(temp);
         }
         for (int i = 0; i < leaf.size(); i++) {
@@ -312,8 +307,8 @@ public class BPlusTree {
                 leaf.get(i).rightSibling = leaf.get(i + 1);
             }
         }
-        // Update statistics
-        numOfNodes = leaf.size();
+
+        numOfNodes = leaf.size();   // Update statistics
 
         //test leaf
 //         for (int i = 0; i < leaf.size(); i++) {
@@ -324,8 +319,7 @@ public class BPlusTree {
 //         System.out.println();
 //         }
 
-        // Construct tree
-        if (leaf.size() == 1) {
+        if (leaf.size() == 1) {     // Construct tree
             root = leaf.get(0);
             return;
         } else {
