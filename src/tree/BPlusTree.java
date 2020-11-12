@@ -11,12 +11,15 @@ public class BPlusTree {
     private int numOfDataEntries;
     private int numOfIndexEntries;
     private double fillFactor;
+    private int nodeCnt;  // Used for printing tree structure
+    private List<Node> levelOrderedNodes;  // Used for printing node contents
 
     // Inner class Node
     private abstract class Node {
         int[] keys;
         int keyCnt = 0;
         InternalNode parentNode;
+        int printId;  // Used for identifying a node when printing
 
         Node() {
             keys = new int[fanOut - 1];
@@ -256,7 +259,7 @@ public class BPlusTree {
                 initialData.add(in.nextInt());
             }
         } catch (Exception e) {
-            System.err.println(e);
+            e.printStackTrace();
         }
 
         // Update statistics
@@ -331,14 +334,13 @@ public class BPlusTree {
     }
 
     // Private methods
-    private void printLevel(List<Node> nodes) {
+    private void assignPrintId(List<Node> nodes) {
         List<Node> nextLevel = new LinkedList<>();
         // print current level
         for (Node n : nodes) {
-            printNode(n);
-            System.out.print(" - ");
+            n.printId = nodeCnt++;
+            levelOrderedNodes.add(n);
         }
-        System.out.println();
 
         // if this is an internal level, add children to `nextLevel` and recurse
         // otherwise, return;
@@ -348,9 +350,34 @@ public class BPlusTree {
                     nextLevel.add(((InternalNode) n).childNodes[i]);
                 }
             }
+            assignPrintId(nextLevel);
+        }
+    }
+
+    private void printLevel(List<Node> nodes) {
+        List<Node> nextLevel = new LinkedList<>();
+
+        // if this is an internal level, add children to `nextLevel` and recurse
+        // otherwise, return;
+        if (nodes.get(0) instanceof InternalNode) {
+            for (Node n : nodes) {
+                System.out.printf("%d -> ", ((InternalNode) n).printId);
+                for (int i = 0; i < n.keyCnt + 1; i++) {
+                    System.out.print(((InternalNode) n).childNodes[i].printId + ", ");
+                    nextLevel.add(((InternalNode) n).childNodes[i]);
+                }
+                System.out.println();
+            }
             printLevel(nextLevel);
         }
+    }
 
+    private void printNodes(List<Node> nodes) {
+        for (Node n : nodes) {
+            System.out.print(n.printId + ": (");
+            printNode(n);
+            System.out.println(")");
+        }
     }
 
     // Public methods
@@ -470,9 +497,13 @@ public class BPlusTree {
     }
 
     public void printTree() {
+        nodeCnt = 0;
+        levelOrderedNodes = new LinkedList<>();
         List<Node> rootLevel = new LinkedList<>();
         rootLevel.add(root);
+        assignPrintId(rootLevel);
         printLevel(rootLevel);
+        printNodes(levelOrderedNodes);
     }
 
     // Test Area
@@ -482,7 +513,7 @@ public class BPlusTree {
         tree.printTree();
 
         System.out.println("\n");
-        tree.search(1, 9);
+        tree.search(23, 100);
         tree.dumpStatistics();
     }
 
