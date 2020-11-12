@@ -282,11 +282,12 @@ public class BPlusTree {
         for (int i = 0; i < initialData.size(); i++) {
             temp.keys[i % (fanOut - 1)] = initialData.get(i);
             temp.keyCnt++;
-            if (i % (fanOut - 1) == 3) {
+            if (i % (fanOut - 1) == (fanOut - 2)) {
                 leaf.add(temp);
                 temp = new LeafNode();
             }
         }
+
         if (temp.keyCnt == 1 && initialData.size() > 1) {
             int giveNext = leaf.get(leaf.size() - 1).keys[leaf.get(leaf.size() - 1).keyCnt - 1];
 
@@ -296,9 +297,10 @@ public class BPlusTree {
             temp.keys[temp.keyCnt - 1] = giveNext;
             temp.keyCnt++;
             leaf.add(temp);
-        } else {
+        } else if (temp.keyCnt > 1 || initialData.size() == 1) {
             leaf.add(temp);
         }
+
         for (int i = 0; i < leaf.size(); i++) {
             if (i != 0) {
                 leaf.get(i).leftSibling = leaf.get(i - 1);
