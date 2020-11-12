@@ -394,10 +394,6 @@ public class BPlusTree {
         // System.out.println(target.keyCnt);
         target.insert(key, record); // TODO: insert record pointer
         numOfDataEntries++;
-        this.printTree();
-        System.out.println();
-        System.out.println();
-        System.out.println();
     }
 
     public void delete(int key) {

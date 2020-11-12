@@ -2,7 +2,7 @@ import tree.BPlusTree;
 
 import java.util.*;
 
-public class Test {
+public class Main {
     public static void main(String[] args) {
         //int[] testData = {13, 2, 16, 14, 10, 13, 16, 7};
         userInterface();
@@ -44,14 +44,19 @@ public class Test {
 
                                 switch (option) {
                                     case "insert":
-                                        if (s.length != 2) {
-                                            System.out.println("Invalid number of arguments\nUsage: insert <key>");
+                                        if (s.length != 4) {
+                                            System.out.println("Invalid number of arguments\nUsage: insert <low> <high> <num>");
                                             break;
                                         }
-                                        // parse key to int
                                         try {
-                                            int key = Integer.parseInt(s[1]);
-                                            tree.insert(key, null);
+                                            // parse key to int
+                                            int low = Integer.parseInt(s[1]);
+                                            int high = Integer.parseInt(s[2]);
+                                            int num = Integer.parseInt(s[3]);
+                                            // insert %num% keys ranged from %low% to %high% into the tree
+                                            for (int i = 0; i < num; i++) {
+                                                tree.insert(new Random().nextInt(high - low) + low, null);
+                                            }
                                         } catch (NumberFormatException e) {
                                             System.out.println("Only integer keys are supported");
                                         }
