@@ -128,6 +128,7 @@ public class BPlusTree {
                 sib.parentNode = parentNode;
             }
             this.keyCnt--; // the key moved to par
+            numOfNodes++;
         }
 
         void delete(int key) {
