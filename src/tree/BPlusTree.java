@@ -56,7 +56,6 @@ public class BPlusTree {
         void insert(int key, Node newChild) {
             if (keyCnt == fanOut - 1) {
                 split(key, newChild);
-                numOfNodes++;
             } else {
 
                 keys[keyCnt++] = key;
@@ -79,7 +78,6 @@ public class BPlusTree {
                     }
                 }
             }
-            numOfIndexEntries++;
         }
 
         private void split(int key, Node newChild) {
@@ -134,14 +132,12 @@ public class BPlusTree {
                 parentNode = new InternalNode(keys[keyCnt - 1], this, sib);
                 sib.parentNode = parentNode;
                 root = parentNode;
-                height++;
             } else {
                 // otherwise, insert key to the parent
                 parentNode.insert(keys[keyCnt - 1], sib);
                 sib.parentNode = parentNode;
             }
             this.keyCnt--; // the key moved to par
-            numOfNodes++;
         }
 
         void delete(int key) {
@@ -239,13 +235,10 @@ public class BPlusTree {
                     parentNode = new InternalNode(temp[temp.length / 2], this, rightSibling);
                     root = parentNode;
                     rightSibling.parentNode = parentNode;
-                    height++;
                 } else {
                     parentNode.insert(temp[temp.length / 2], rightSibling);
                     rightSibling.parentNode = parentNode;
                 }
-
-                numOfNodes++;
 
             }
         }
@@ -272,8 +265,6 @@ public class BPlusTree {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        numOfDataEntries = initialData.size(); // Update statistics
 
         // Bulk loading
         Collections.sort(initialData);      // sort
@@ -311,8 +302,6 @@ public class BPlusTree {
             }
         }
 
-        numOfNodes = leaf.size();   // Update statistics
-
         //test leaf
 //         for (int i = 0; i < leaf.size(); i++) {
 //         System.out.print(leaf.get(i).keyCnt + " || ");
@@ -327,10 +316,6 @@ public class BPlusTree {
             return;
         } else {
             root = new InternalNode(leaf.get(1).keys[0], leaf.get(0), leaf.get(1));
-            // Update statistics
-            numOfNodes++;
-            height = 1;
-            numOfIndexEntries = 1;
         }
         for (int i = 2; i < leaf.size(); i++) {
             LeafNode prev = leaf.get(i - 1);
@@ -395,7 +380,6 @@ public class BPlusTree {
         LeafNode target = search(key);
         // System.out.println(target.keyCnt);
         target.insert(key, record); // TODO: insert record pointer
-        numOfDataEntries++;
     }
 
     public void delete(int key) {
