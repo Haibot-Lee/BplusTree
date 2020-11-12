@@ -10,6 +10,7 @@ public class BPlusTree {
     private final int fanOut;
     private int numOfDataEntries;
     private int numOfIndexEntries;
+    private int numOfLeafNodes;
     private double fillFactor;
     private int nodeCnt;  // Used for printing tree structure
     private List<Node> levelOrderedNodes;  // Used for printing node contents
@@ -371,6 +372,21 @@ public class BPlusTree {
         }
     }
 
+    private void countLevel(List<Node> nodes) {
+        System.out.println("countLevel");
+        List<Node> nextLevel = new LinkedList<>();
+
+        if (nodes.get(0) instanceof InternalNode) {
+            for (Node n : nodes) {
+                for (int i = 0; i < n.keyCnt + 1; i++) {
+                    nextLevel.add(((InternalNode) n).childNodes[i]);
+                    numOfIndexEntries++;
+                }
+            }
+            countLevel(nextLevel);
+        }
+    }
+
     // Public methods
     public void insert(int key, Object record) {
         // TEST CODE START
@@ -468,35 +484,43 @@ public class BPlusTree {
     }
 
     public void dumpStatistics() {
-        System.out.println("Total No. of nodes in the tree: " + numOfNodes);
-        System.out.println("Total No. of data entries in the tree: " + numOfDataEntries);
-        System.out.println("Total No. of index entries in the tree: " + numOfIndexEntries);
-        System.out.println("Average fill factor (used space/total space) of the nodes: " + ((double) (numOfIndexEntries + numOfDataEntries)) / (numOfNodes * (fanOut - 1)));  // ???
-        System.out.println("Height of tree: " + height);
-    }
+        height = 0;
+        numOfLeafNodes = 0;
+        numOfDataEntries = 0;
+        numOfIndexEntries = 0;
+        numOfNodes = 0;
 
-    public void getDateEntries() {
-        int height = 0;
-        int numOfLeaves = 0;
-        int numOfDataEntries = 0;
+        // Count height
         Node current = root;
-
         while (current instanceof InternalNode) {
             current = ((InternalNode) current).childNodes[0];
             height++;
         }
-        System.out.println("Height of tree: " + height);
 
+        // Count data entries and leaf nodes
         while (((LeafNode) current).rightSibling != null) {
             numOfDataEntries += current.keyCnt;
             current = ((LeafNode) current).rightSibling;
-            numOfLeaves++;
+            numOfLeafNodes++;
         }
         numOfDataEntries += current.keyCnt;
-        numOfLeaves++;
+        numOfLeafNodes++;
 
-        System.out.println("Total No. of leaves in the tree: " + numOfLeaves);
-        System.out.println("Total No. of index entries in the tree: " + numOfDataEntries);
+        // Count index entries
+        List<Node> rootLevel = new LinkedList<>();
+        rootLevel.add(root);
+        countLevel(rootLevel);
+
+        // Calculate the number of nodes;
+        numOfNodes = numOfIndexEntries + 1;
+
+        // Print
+        System.out.println("Statistics of the B+ tree:");
+        System.out.println("Total No. of nodes: " + numOfNodes);
+        System.out.println("Total No. of data entries: " + numOfDataEntries);
+        System.out.println("Total No. of index entries: " + numOfIndexEntries);
+        System.out.println("Average fill factor (used space/total space) of the nodes: " + ((double) (numOfIndexEntries + numOfDataEntries)) / (numOfNodes * (fanOut - 1)));
+        System.out.println("Height of tree: " + height);
     }
 
 
@@ -520,8 +544,8 @@ public class BPlusTree {
         tree.printTree();
 
         System.out.println("\n");
-
-        tree.getDateEntries();
+        tree.search(23, 100);
+        tree.dumpStatistics();
     }
 
 }

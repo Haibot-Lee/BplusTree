@@ -67,7 +67,7 @@ public class Main {
                                     case "print":
                                         tree.printTree();
                                         break;
-                                    case "stat":
+                                    case "stats":
                                         tree.dumpStatistics();
                                         break;
                                     case "search":
