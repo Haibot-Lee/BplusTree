@@ -302,14 +302,15 @@ public class BPlusTree {
             }
         }
 
-        //test leaf
-//         for (int i = 0; i < leaf.size(); i++) {
-//         System.out.print(leaf.get(i).keyCnt + " || ");
-//         for (int j = 0; j < leaf.get(i).keys.length; j++) {
-//         System.out.print(leaf.get(i).keys[j] + " ");
-//         }
-//         System.out.println();
-//         }
+        //test
+//        LeafNode current = leaf.get(0);
+//        while (current.rightSibling != null) {
+//            for (int j = 0; j < current.keys.length; j++) {
+//                System.out.print(current.keys[j] + " ");
+//            }
+//            current = current.rightSibling;
+//            System.out.println();
+//        }
 
         if (leaf.size() == 1) {     // Construct tree
             root = leaf.get(0);
@@ -467,12 +468,35 @@ public class BPlusTree {
     }
 
     public void dumpStatistics() {
-
         System.out.println("Total No. of nodes in the tree: " + numOfNodes);
         System.out.println("Total No. of data entries in the tree: " + numOfDataEntries);
         System.out.println("Total No. of index entries in the tree: " + numOfIndexEntries);
         System.out.println("Average fill factor (used space/total space) of the nodes: " + ((double) (numOfIndexEntries + numOfDataEntries)) / (numOfNodes * (fanOut - 1)));  // ???
         System.out.println("Height of tree: " + height);
+    }
+
+    public void getDateEntries() {
+        int height = 0;
+        int numOfLeaves = 0;
+        int numOfDataEntries = 0;
+        Node current = root;
+
+        while (current instanceof InternalNode) {
+            current = ((InternalNode) current).childNodes[0];
+            height++;
+        }
+        System.out.println("Height of tree: " + height);
+
+        while (((LeafNode) current).rightSibling != null) {
+            numOfDataEntries += current.keyCnt;
+            current = ((LeafNode) current).rightSibling;
+            numOfLeaves++;
+        }
+        numOfDataEntries += current.keyCnt;
+        numOfLeaves++;
+
+        System.out.println("Total No. of leaves in the tree: " + numOfLeaves);
+        System.out.println("Total No. of index entries in the tree: " + numOfDataEntries);
     }
 
 
@@ -496,8 +520,8 @@ public class BPlusTree {
         tree.printTree();
 
         System.out.println("\n");
-        tree.search(23, 100);
-        tree.dumpStatistics();
+
+        tree.getDateEntries();
     }
 
 }
