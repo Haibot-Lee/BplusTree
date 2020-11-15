@@ -26,8 +26,6 @@ public class BPlusTree {
             keys = new int[fanOut - 1];
         }
 
-        abstract void delete(int key);
-
         @Override
         public String toString() {
             String str = "(";
@@ -141,10 +139,130 @@ public class BPlusTree {
             this.keyCnt--; // the key moved to par
         }
 
-        void delete(int key) {
-
+        void reset (boolean borrowFromL, int key) {
+        	if (borrowFromL) {
+	        	for (int i = 0; i < keyCnt; i++) {
+	        		if (key < keys[i]) {
+	        			keys[i] = key;
+	        			break;
+	        		}
+	        	}
+        	}else {
+        		for (int i = 0; i < keyCnt; i++) {
+	        		if (key < keys[i]) {
+	        			keys[i-1] = key;
+	        			break;
+	        		}
+	        	}
+        	}
         }
 
+        void delete (int key) {
+    		for (int i = 0; i < keyCnt; i++) {
+        		if (key < keys[i]) {
+        			for (int j = i; j < keyCnt - 1; j++) {
+        				keys[j] = keys[j+1];
+        				childNodes[j]=childNodes[j+1];
+        			}
+        			childNodes[keyCnt-1]= childNodes[keyCnt];
+        			keys[keyCnt - 1] = 0;
+        			childNodes[keyCnt] = null;
+        			keyCnt--;
+        			break;
+        		}
+        	}
+
+        	// check underflow
+        	if (keyCnt < fanOut / 2) {
+        		// redistribute
+        		redistribute(this);
+        	}
+        }
+
+        void redistribute (InternalNode pointer) {
+        	if (pointer != root) {
+	    		// find the left sibling node and the right sibling node
+	    		InternalNode leftSibling = null;
+	    		InternalNode rightSibling = null;
+	    		int position = 0;
+	    		for (int i = 0; i < pointer.parentNode.keyCnt + 1; i++) {
+	    			if (pointer.parentNode.childNodes[i] == pointer) {
+	    				leftSibling = i > 1 ? (InternalNode)pointer.parentNode.childNodes[i - 1] : null;
+	    				rightSibling = i < parentNode.keyCnt ? (InternalNode)pointer.parentNode.childNodes[i + 1] : null;
+	    				position = i;
+	    			}
+	    		}
+	    		if (leftSibling != null && leftSibling.keyCnt > fanOut / 2) {
+	    			// borrow from left
+	    			for (int j = pointer.keyCnt; j > 0; j--) {
+	    				// to get enough space for the borrow ones
+	    				pointer.keys[j] = pointer.keys[j - 1];
+	    				pointer.childNodes[j + 1] = pointer.childNodes[j];
+	    			}
+	    			pointer.childNodes[1] = pointer.childNodes[0];
+	    			pointer.parentNode.keys[position - 1] = leftSibling.keys[leftSibling.keyCnt - 1];
+	    			pointer.keys[0] = leftSibling.keys[leftSibling.keyCnt - 1];
+	    			pointer.keyCnt++;
+	    			pointer.childNodes[0] = leftSibling.childNodes[leftSibling.keyCnt];
+	    			leftSibling.keyCnt--;
+	    		}else if (rightSibling != null && rightSibling.keyCnt > fanOut / 2) {
+	    			// borrow from right
+	    			pointer.keys[pointer.keyCnt] = rightSibling.keys[0];
+	    			pointer.childNodes[pointer.keyCnt + 1] = rightSibling.childNodes[0];
+	    			pointer.keyCnt++;
+	    			pointer.parentNode.keys[position] = rightSibling.keys[1];
+	    			for (int j = 0; j < rightSibling.keyCnt - 1; j++) {
+	    				rightSibling.keys[j] = rightSibling.keys[j + 1];
+	    				rightSibling.childNodes[j] = rightSibling.childNodes[j + 1];
+	    			}
+	    			rightSibling.childNodes[rightSibling.keyCnt - 1] = rightSibling.childNodes[rightSibling.keyCnt];
+	    			rightSibling.keyCnt--;
+	    		}else if (leftSibling != null){
+	    			System.out.println("left tested");
+	    			// move down the parentNode and combine with left sibling node together
+	    			leftSibling.keys[leftSibling.keyCnt] = pointer.parentNode.keys[position - 1];
+	    			leftSibling.keyCnt++;
+	    			for (int j = 0; j < keyCnt; j++) {
+	    				leftSibling.keys[leftSibling.keyCnt + j] = pointer.keys[j];
+	    				leftSibling.childNodes[leftSibling.keyCnt + j] = pointer.childNodes[j];
+	    			}
+	    			leftSibling.keyCnt += pointer.keyCnt;
+	    			leftSibling.childNodes[leftSibling.keyCnt] = pointer.childNodes[pointer.keyCnt];
+	    			for (int k = position - 1; k < pointer.parentNode.keyCnt; k++) {
+	    				pointer.parentNode.keys[k] = pointer.parentNode.keys[k+1];
+	    				pointer.parentNode.childNodes[k] = pointer.parentNode.childNodes[k+1];
+	    			}
+	    			pointer.parentNode.keyCnt--;
+	    		}else if (rightSibling != null) {
+	    			System.out.println("right tested");
+	    			// move down the parentNode and combine with right sibling node together
+	    			pointer.keys[pointer.keyCnt] = pointer.parentNode.keys[position];
+	    			pointer.keyCnt++;
+	    			for (int j = 0; j < rightSibling.keyCnt; j++) {
+	    				pointer.keys[pointer.keyCnt + j] = rightSibling.keys[j];
+	    				pointer.childNodes[pointer.keyCnt + j] = rightSibling.childNodes[j];
+	    			}
+	    			pointer.keyCnt += rightSibling.keyCnt;
+	    			pointer.childNodes[pointer.keyCnt] = rightSibling.childNodes[rightSibling.keyCnt];
+	    			for (int k = position; k < pointer.parentNode.keyCnt; k++) {
+	    				pointer.parentNode.keys[k] = pointer.parentNode.keys[k+1];
+	    				pointer.parentNode.childNodes[k] = pointer.parentNode.childNodes[k+1];
+	    			}
+	    			pointer.parentNode.keyCnt--;
+	    		}else {
+	    			for (int j = 0; j < pointer.keyCnt + 1; j++) {
+	    				pointer.childNodes[j].parentNode = pointer.parentNode;
+	    			}
+	    			pointer.parentNode.childNodes = pointer.childNodes;
+	    			pointer = pointer.parentNode;
+	    		}
+	    		// check underflow
+	        	if (pointer.keyCnt < fanOut / 2) {
+	        		// redistribute
+	        		redistribute(pointer);
+	        	}
+        	}
+        }
     }
 
     private class LeafNode extends Node {
@@ -244,8 +362,90 @@ public class BPlusTree {
             }
         }
 
-        @Override
         void delete(int key) {
+        	// reset the keyCnt
+        	boolean treeChanged = false;
+        	for (int i = 0; i < keyCnt; i++) {
+        		if (key == keys[i]) {
+        			if (i + 1 <= keyCnt) {
+        				for (int j = i; j < keyCnt - 1; j++) {
+        					keys[j] = keys[j+1];
+        					records[j] = records[j+1];
+        				}
+        				keys[keyCnt - 1] = 0;
+        				records[keyCnt - 1] = null;
+        			}
+        			keyCnt--;
+        			treeChanged = true;
+        			i--; // to check the value which is original in next position
+        		}
+        	}
+        	if (!treeChanged) {
+        		System.out.println(key + " is not exist, delete failed!");
+        		return;
+        	}
+        	// check underflow
+        	if (keyCnt < fanOut / 2) {
+        		// Try to re-distribute, borrowing from sibling
+        		// borrow from left sibling
+        		if (leftSibling != null && leftSibling.keyCnt > fanOut / 2) {
+        			for (int j = keyCnt; j > 0; j--) {
+    					keys[j] = keys[j-1];
+    					records[j] = records[j-1];
+    				}
+        			keys[0] = leftSibling.keys[leftSibling.keyCnt - 1];
+        			records[0] = leftSibling.records[leftSibling.keyCnt - 1];
+        			keyCnt++;
+        			leftSibling.keys[leftSibling.keyCnt - 1] = 0;
+        			leftSibling.records[leftSibling.keyCnt - 1] = null;
+        			leftSibling.keyCnt --;
+        			parentNode.reset(true, keys[0]);
+        		}// borrow from right sibling
+        		else if (rightSibling != null && rightSibling.keyCnt > fanOut / 2) {
+        			keys[keyCnt] = rightSibling.keys[0];
+        			records[keyCnt] = rightSibling.records[0];
+        			for (int j = 0; j < rightSibling.keyCnt - 1; j++) {
+    					rightSibling.keys[j] = rightSibling.keys[j+1];
+    					rightSibling.records[j] = rightSibling.records[j+1];
+    				}
+        			keyCnt++;
+        			rightSibling.keys[rightSibling.keyCnt - 1] = 0;
+        			rightSibling.records[rightSibling.keyCnt - 1] = null;
+        			rightSibling.keyCnt --;
+        			parentNode.reset(false, rightSibling.keys[0]);
+        		}// if re-distribution fails, merge this node and sibling
+        		else if (leftSibling != null) {
+        			// merge leftSibling and current one
+        			for (int j = 0; j < keyCnt; j++) {
+        				keys[leftSibling.keyCnt + j] = keys[j];
+        				records[leftSibling.keyCnt + j] = records[j];
+        			}
+        			for (int j = 0; j < leftSibling.keyCnt; j++) {
+        				keys[j] = leftSibling.keys[j];
+        				records[j] = leftSibling.records[j];
+        			}
+        			keyCnt += leftSibling.keyCnt;
+        			if (leftSibling.leftSibling != null)
+        				this.leftSibling = leftSibling.leftSibling;
+        			parentNode.delete(keys[0]);
+        		}else if (rightSibling != null) {
+        			// merge rightSibling and current one
+        			for (int j = rightSibling.keyCnt; j > 0; j--) {
+        				rightSibling.keys[keyCnt + j - 1] = rightSibling.keys[j - 1];
+        				rightSibling.records[keyCnt + j - 1] = rightSibling.records[j - 1];
+        			}
+        			for (int j = 0; j < keyCnt; j++) {
+        				rightSibling.keys[j] = keys[j];
+        				rightSibling.records[j] = records[j];
+        			}
+        			rightSibling.leftSibling = leftSibling;
+        			if (leftSibling != null)
+        				leftSibling.rightSibling = rightSibling;
+        			rightSibling.keyCnt += keyCnt;
+        			parentNode.delete(rightSibling.keys[0]);
+        		}
+        	}
+
 
         }
     }
@@ -399,8 +599,20 @@ public class BPlusTree {
         target.insert(key, record); // TODO: insert record pointer
     }
 
-    public void delete(int key) {
+    public void delete (int key) {
+    	System.out.println("Delete "+ key);
+    	// find
+    	LeafNode target = search(key);
+		// delete
+		target.delete(key);
 
+    }
+
+    public void delete (int lowerbound, int upperbound) {
+    	ArrayList<Integer> deleteTargets = search(lowerbound, upperbound);
+    	for (Integer key : deleteTargets) {
+    		delete(key);
+    	}
     }
 
     public LeafNode search(int key) {
@@ -444,14 +656,14 @@ public class BPlusTree {
 
     }
 
-    public void search(int key1, int key2) {
+    public ArrayList<Integer> search(int key1, int key2) {
         LeafNode n = search(key1);
         ArrayList<Integer> results = new ArrayList<>();
 
         while (true) {
             // traverse a leaf node
             for (int key : n.keys) {
-                if (key >= key1) {
+                if (key != 0 && key >= key1) {// key != 0 to avoid error message because of the deleted space
                     if (key <= key2) {
                         results.add(key);
                     } else {
@@ -464,7 +676,7 @@ public class BPlusTree {
                         } else {
                             System.out.println(result);
                         }
-                        return;
+                        return results;
                     }
                 }
             }
@@ -478,7 +690,7 @@ public class BPlusTree {
                     result += k + " ";
                 }
                 System.out.println(result);
-                return;
+                return results;
             }
         }
     }
