@@ -63,6 +63,19 @@ public class Main {
                                         break;
                                     case "delete":
 //                                        tree.delete(argument);
+                                        if (s.length != 3){
+                                            System.out.println("Invalid number of arguments\n" +
+                                                    "Usage: delete <low> <high>");
+                                            break;
+                                        }
+                                        try {
+                                            // parse key to int
+                                            int low = Integer.parseInt(s[1]);
+                                            int high = Integer.parseInt(s[2]);
+                                            tree.delete(low, high);
+                                        } catch (NumberFormatException e) {
+                                            System.out.println("Only integer keys are supported");
+                                        }
                                         break;
                                     case "print":
                                         tree.printTree();
