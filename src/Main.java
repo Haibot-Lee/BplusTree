@@ -62,7 +62,6 @@ public class Main {
                                         }
                                         break;
                                     case "delete":
-//                                        tree.delete(argument);
                                         if (s.length != 3){
                                             System.out.println("Invalid number of arguments\n" +
                                                     "Usage: delete <low> <high>");
