@@ -677,8 +677,11 @@ public class BPlusTree {
 
         while (true) {
             // traverse a leaf node
-            for (int key : n.keys) {
-                if (key != 0 && key >= key1) {// key != 0 to avoid error message because of the deleted space
+            for (int i = 0; i < n.keyCnt; i++) {
+                int key = n.keys[i];
+            //for (int key : n.keys) {
+                //if (key != 0 && key >= key1) {// key != 0 to avoid error message because of the deleted space
+                if (key >= key1) {
                     if (key <= key2) {
                         results.add(key);
                     } else {
