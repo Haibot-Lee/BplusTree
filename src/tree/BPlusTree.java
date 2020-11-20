@@ -737,7 +737,8 @@ public class BPlusTree {
         System.out.println("Total No. of nodes: " + numOfNodes);
         System.out.println("Total No. of data entries: " + numOfDataEntries);
         System.out.println("Total No. of index entries: " + numOfIndexEntries);
-        System.out.println("Average fill factor (used space/total space) of the nodes: " + ((double) (numOfIndexEntries + numOfDataEntries)) / (numOfNodes * (fanOut - 1)));
+        System.out.println("Average fill factor (used space/total space) of the nodes: "
+                + ((double) (numOfIndexEntries + numOfDataEntries)) / (numOfNodes * (fanOut - 1)));
         System.out.println("Height of tree: " + height);
     }
 
