@@ -1,5 +1,6 @@
 import tree.BPlusTree;
 
+import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Main {
@@ -32,9 +33,14 @@ public class Main {
                                     + "fname: the name of the data file "
                                     + "storing the search key values");
                         } else {
-                            tree = new BPlusTree(s[1]);
-                            System.out.println("Building an initial B+-Tree...\n" +
-                                    "Launching B+-Tree test program…\n");
+                            try {
+                                tree = new BPlusTree(s[1]);
+                                System.out.println("Building an initial B+-Tree...\n" +
+                                        "Launching B+-Tree test program…\n");
+                            } catch (FileNotFoundException e) {
+                                System.out.println("File not found");
+                                continue;
+                            }
 
                             while (!option.equals("quit")) {
                                 System.out.print("Waiting for your commands: ");

@@ -1,6 +1,7 @@
 package tree;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 public class BPlusTree {
@@ -451,20 +452,16 @@ public class BPlusTree {
     }
 
     // Constructors
-    public BPlusTree(String filename) {
+    public BPlusTree(String filename) throws FileNotFoundException {
         this.fanOut = 5;
         this.root = new LeafNode(); // root is initially a leaf node
 
         // Read file
         List<Integer> initialData = new ArrayList<Integer>();
-        try {
-            File file = new File(filename);
-            Scanner in = new Scanner(file);
-            while (in.hasNextLine()) {
-                initialData.add(in.nextInt());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        File file = new File(filename);
+        Scanner in = new Scanner(file);
+        while (in.hasNextLine()) {
+            initialData.add(in.nextInt());
         }
 
         // Bulk loading
@@ -757,21 +754,21 @@ public class BPlusTree {
     }
 
     // Test Area
-    public static void main(String[] args) {
-        BPlusTree tree = new BPlusTree("testData.txt");
-
-        tree.printTree();
-        System.out.println("\n");
-
-        // basic test for deleting all
-        ArrayList<Integer> test = tree.search(0,9000);
-        for (Integer k : test) {
-            System.out.println("\nAfter delete:");
-            tree.delete(k);
-            tree.printTree();
-        }
-//        tree.search(23, 100);
-        tree.dumpStatistics();
-    }
+//    public static void main(String[] args) {
+//        BPlusTree tree = new BPlusTree("testData.txt");
+//
+//        tree.printTree();
+//        System.out.println("\n");
+//
+//        // basic test for deleting all
+//        ArrayList<Integer> test = tree.search(0,9000);
+//        for (Integer k : test) {
+//            System.out.println("\nAfter delete:");
+//            tree.delete(k);
+//            tree.printTree();
+//        }
+////        tree.search(23, 100);
+//        tree.dumpStatistics();
+//    }
 
 }
