@@ -68,18 +68,28 @@ public class Main {
                                         }
                                         break;
                                     case "delete":
-                                        if (s.length != 3){
+                                        if (s.length != 2 && s.length != 3){
                                             System.out.println("Invalid number of arguments\n" +
-                                                    "Usage: delete <low> <high>");
+                                                    "Usage: delete <integer value> OR delete <low> <high>");
                                             break;
                                         }
-                                        try {
-                                            // parse key to int
-                                            int low = Integer.parseInt(s[1]);
-                                            int high = Integer.parseInt(s[2]);
-                                            tree.delete(low, high);
-                                        } catch (NumberFormatException e) {
-                                            System.out.println("Only integer keys are supported");
+                                        if (s.length == 2){
+                                            try {
+                                                // parse key to int
+                                                int value = Integer.parseInt(s[1]);
+                                                tree.delete(value);
+                                            } catch (NumberFormatException e) {
+                                                System.out.println("Only integer keys are supported");
+                                            }
+                                        }else if (s.length == 3) {
+                                            try {
+                                                // parse key to int
+                                                int low = Integer.parseInt(s[1]);
+                                                int high = Integer.parseInt(s[2]);
+                                                tree.delete(low, high);
+                                            } catch (NumberFormatException e) {
+                                                System.out.println("Only integer keys are supported");
+                                            }
                                         }
                                         break;
                                     case "print":
