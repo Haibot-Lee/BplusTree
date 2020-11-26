@@ -5,7 +5,6 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        //int[] testData = {13, 2, 16, 14, 10, 13, 16, 7};
         userInterface();
     }
 
@@ -68,12 +67,12 @@ public class Main {
                                         }
                                         break;
                                     case "delete":
-                                        if (s.length != 2 && s.length != 3){
+                                        if (s.length != 2 && s.length != 3) {
                                             System.out.println("Invalid number of arguments\n" +
                                                     "Usage: delete <integer value> OR delete <low> <high>");
                                             break;
                                         }
-                                        if (s.length == 2){
+                                        if (s.length == 2) {
                                             try {
                                                 // parse key to int
                                                 int value = Integer.parseInt(s[1]);
@@ -81,7 +80,7 @@ public class Main {
                                             } catch (NumberFormatException e) {
                                                 System.out.println("Only integer keys are supported");
                                             }
-                                        }else if (s.length == 3) {
+                                        } else if (s.length == 3) {
                                             try {
                                                 // parse key to int
                                                 int low = Integer.parseInt(s[1]);
